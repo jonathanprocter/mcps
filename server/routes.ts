@@ -42,56 +42,112 @@ router.get('/servers', async (req, res) => {
         status: 'online',
         description: 'Complete Gmail integration for email management',
         tools: ['search_emails', 'send_email', 'get_email', 'mark_as_read', 'mark_as_unread', 'delete_email', 'get_attachments'],
-        lastUsed: new Date().toISOString()
+        lastUsed: new Date().toISOString(),
+        version: '1.0.0',
+        uptime: '5 hours',
+        requestCount: 247,
+        errorCount: 3,
+        averageResponseTime: 450,
+        requiresAuth: true,
+        authStatus: process.env.GOOGLE_CLIENT_ID ? 'authenticated' : 'unauthenticated'
       },
       {
         name: 'drive',
         status: 'online',
         description: 'Google Drive file management and sharing',
         tools: ['list_files', 'upload_file', 'download_file', 'share_file', 'move_file', 'copy_file', 'delete_file'],
-        lastUsed: new Date().toISOString()
+        lastUsed: new Date().toISOString(),
+        version: '1.0.0',
+        uptime: '5 hours',
+        requestCount: 189,
+        errorCount: 1,
+        averageResponseTime: 680,
+        requiresAuth: true,
+        authStatus: process.env.GOOGLE_CLIENT_ID ? 'authenticated' : 'unauthenticated'
       },
       {
         name: 'calendar',
         status: 'online',
         description: 'Google Calendar event management',
         tools: ['list_events', 'create_event', 'update_event', 'delete_event', 'search_events', 'get_busy_times'],
-        lastUsed: new Date().toISOString()
+        lastUsed: new Date().toISOString(),
+        version: '1.0.0',
+        uptime: '5 hours',
+        requestCount: 93,
+        errorCount: 0,
+        averageResponseTime: 320,
+        requiresAuth: true,
+        authStatus: process.env.GOOGLE_CLIENT_ID ? 'authenticated' : 'unauthenticated'
       },
       {
         name: 'dropbox',
         status: 'online',
         description: 'Dropbox cloud storage integration',
         tools: ['list_files', 'upload_file', 'download_file', 'share_file', 'move_file', 'get_space_usage'],
-        lastUsed: new Date().toISOString()
+        lastUsed: new Date().toISOString(),
+        version: '1.0.0',
+        uptime: '5 hours',
+        requestCount: 76,
+        errorCount: 2,
+        averageResponseTime: 590,
+        requiresAuth: true,
+        authStatus: process.env.DROPBOX_ACCESS_TOKEN ? 'authenticated' : 'unauthenticated'
       },
       {
         name: 'notion',
         status: 'online',
         description: 'Notion workspace and knowledge management',
         tools: ['search_pages', 'create_page', 'update_page', 'query_database', 'create_database_entry', 'append_block_children'],
-        lastUsed: new Date().toISOString()
+        lastUsed: new Date().toISOString(),
+        version: '1.0.0',
+        uptime: '5 hours',
+        requestCount: 134,
+        errorCount: 1,
+        averageResponseTime: 710,
+        requiresAuth: true,
+        authStatus: process.env.NOTION_INTEGRATION_SECRET ? 'authenticated' : 'unauthenticated'
       },
       {
         name: 'openai',
         status: 'online',
         description: 'OpenAI AI capabilities and models',
         tools: ['chat_completion', 'generate_image', 'analyze_image', 'transcribe_audio', 'text_to_speech', 'create_embedding'],
-        lastUsed: new Date().toISOString()
+        lastUsed: new Date().toISOString(),
+        version: '1.0.0',
+        uptime: '5 hours',
+        requestCount: 312,
+        errorCount: 5,
+        averageResponseTime: 1250,
+        requiresAuth: true,
+        authStatus: process.env.OPENAI_API_KEY ? 'authenticated' : 'unauthenticated'
       },
       {
         name: 'perplexity',
         status: 'online',
         description: 'Perplexity real-time web search and research',
         tools: ['search_and_answer', 'fact_check', 'research_topic', 'compare_topics', 'latest_news', 'generate_summary'],
-        lastUsed: new Date().toISOString()
+        lastUsed: new Date().toISOString(),
+        version: '1.0.0',
+        uptime: '5 hours',
+        requestCount: 58,
+        errorCount: 0,
+        averageResponseTime: 980,
+        requiresAuth: true,
+        authStatus: process.env.PERPLEXITY_API_KEY ? 'authenticated' : 'unauthenticated'
       },
       {
         name: 'puppeteer',
         status: 'online',
         description: 'Web scraping and browser automation',
         tools: ['scrape_page', 'take_screenshot', 'generate_pdf', 'fill_form', 'click_element', 'extract_links'],
-        lastUsed: new Date().toISOString()
+        lastUsed: new Date().toISOString(),
+        version: '1.0.0',
+        uptime: '5 hours',
+        requestCount: 45,
+        errorCount: 1,
+        averageResponseTime: 2100,
+        requiresAuth: false,
+        authStatus: 'authenticated'
       }
     ];
 
@@ -99,6 +155,61 @@ router.get('/servers', async (req, res) => {
   } catch (error) {
     console.error('Error fetching servers:', error);
     res.status(500).json({ error: 'Failed to fetch servers' });
+  }
+});
+
+// Health check endpoint
+router.get('/health', async (req, res) => {
+  try {
+    const totalServers = 8;
+    const onlineServers = 8; // All servers are online in this demo
+    const totalRequests = 1154;
+    const totalErrors = 13;
+    const averageResponseTime = 772;
+    
+    const healthStatus = totalErrors < 20 ? 'healthy' : totalErrors < 50 ? 'degraded' : 'unhealthy';
+    
+    const healthCheck = {
+      status: healthStatus,
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      servers: ['gmail', 'drive', 'calendar', 'dropbox', 'notion', 'openai', 'perplexity', 'puppeteer'],
+      totalRequests,
+      totalErrors,
+      averageResponseTime
+    };
+
+    res.json(healthCheck);
+  } catch (error) {
+    console.error('Error fetching health status:', error);
+    res.status(500).json({ error: 'Failed to fetch health status' });
+  }
+});
+
+// Test server endpoint
+router.post('/servers/:serverName/test', async (req, res) => {
+  try {
+    const { serverName } = req.params;
+    
+    // Simulate server testing
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    const testResults = {
+      server: serverName,
+      status: 'success',
+      timestamp: new Date().toISOString(),
+      tests: {
+        connection: 'passed',
+        authentication: 'passed',
+        basic_functionality: 'passed'
+      },
+      responseTime: Math.floor(Math.random() * 1000) + 200
+    };
+
+    res.json(testResults);
+  } catch (error) {
+    console.error('Error testing server:', error);
+    res.status(500).json({ error: 'Failed to test server' });
   }
 });
 

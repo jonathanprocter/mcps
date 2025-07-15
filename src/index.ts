@@ -9,6 +9,22 @@ import {
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
+// Helper function to check for secrets
+function checkSecrets() {
+  return {
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+    GOOGLE_REFRESH_TOKEN: process.env.GOOGLE_REFRESH_TOKEN,
+    DROPBOX_ACCESS_TOKEN: process.env.DROPBOX_ACCESS_TOKEN,
+    NOTION_INTEGRATION_SECRET: process.env.NOTION_INTEGRATION_SECRET,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    PERPLEXITY_API_KEY: process.env.PERPLEXITY_API_KEY,
+  };
+}
 class MainMCPServer {
   private server: Server;
   private availableServers: string[] = [];

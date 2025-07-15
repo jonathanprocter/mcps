@@ -111,5 +111,9 @@ args = "node server.js"
 run = ["sh", "-c", "npm run build && npm start"]
 
 [[ports]]
+localPort = 3001
+externalPort = 3001
+
+[[ports]]
 localPort = 5000
 externalPort = 80
