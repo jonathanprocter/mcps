@@ -11,7 +11,7 @@ import { getRequiredEnv } from '../utils/env.js';
 import { DropboxFile, DropboxFolder } from '../types/index.js';
 
 class DropboxMCPServer {
-  private dropbox: Dropbox;
+  private dropbox!: Dropbox;
   private server: Server;
 
   constructor() {

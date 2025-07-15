@@ -11,7 +11,7 @@ import { getRequiredEnv } from '../utils/env.js';
 import { NotionPage, NotionDatabase } from '../types/index.js';
 
 class NotionMCPServer {
-  private notion: Client;
+  private notion!: Client;
   private server: Server;
 
   constructor() {

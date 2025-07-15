@@ -11,7 +11,7 @@ import { getRequiredEnv } from '../utils/env.js';
 import { OpenAIMessage, OpenAICompletion, OpenAIImageGeneration } from '../types/index.js';
 
 class OpenAIMCPServer {
-  private openai: OpenAI;
+  private openai!: OpenAI;
   private server: Server;
 
   constructor() {
