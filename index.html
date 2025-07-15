@@ -616,6 +616,7 @@
       initializeServerGrid();
       initializeEventListeners();
       updateCharCounter();
+      initializeSSE();
     });
 
     function initializeServerGrid() {
@@ -882,6 +883,23 @@
         console.error('Real API failed, showing error:', error);
         displayOutput(`❌ API Error: ${error.message}\n\nThis might be because:\n• API keys are not configured\n• Server is not running\n• Network connection issue\n\nPlease check your environment variables and server status.`, true);
         return;
+      }
+    }
+
+    let eventSource;
+    function initializeSSE() {
+      try {
+        eventSource = new EventSource('/api/events');
+        eventSource.onmessage = (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            displayOutput(JSON.stringify(data, null, 2));
+          } catch (err) {
+            console.error('Invalid SSE data', err);
+          }
+        };
+      } catch (err) {
+        console.error('SSE connection failed', err);
       }
     }
 
