@@ -1,4 +1,5 @@
 import express from 'express';
+import { EventEmitter } from 'events';
 import { MainMCPServer } from '../src/index';
 import { GmailMCPServer } from '../src/servers/gmail';
 import { GoogleDriveMCPServer } from '../src/servers/drive';
@@ -10,6 +11,7 @@ import { PerplexityMCPServer } from '../src/servers/perplexity';
 import { PuppeteerMCPServer } from '../src/servers/puppeteer';
 
 const router = express.Router();
+const sseEmitter = new EventEmitter();
 
 // Server instances
 const serverInstances = new Map<string, any>();
@@ -32,6 +34,23 @@ const initializeServers = async () => {
 
 // Initialize on startup
 initializeServers();
+
+// SSE endpoint for real-time updates
+router.get('/events', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  const sendEvent = (data: any) => {
+    res.write(`data: ${JSON.stringify(data)}\n\n`);
+  };
+
+  sseEmitter.on('message', sendEvent);
+
+  req.on('close', () => {
+    sseEmitter.off('message', sendEvent);
+  });
+});
 
 // Get all available servers
 router.get('/servers', async (req, res) => {
@@ -257,8 +276,8 @@ router.post('/execute', async (req, res) => {
     }
 
     // Execute the actual MCP server tool
-    let result;
-    try {
+  let result;
+  try {
       switch (server) {
         case 'gmail':
           result = await executeGmailTool(serverInstance, tool, input);
@@ -281,13 +300,13 @@ router.post('/execute', async (req, res) => {
         case 'perplexity':
           result = await executePerplexityTool(serverInstance, tool, input);
           break;
-        case 'puppeteer':
-          result = await executePuppeteerTool(serverInstance, tool, input);
-          break;
-        default:
-          throw new Error(`Unsupported server: ${server}`);
-      }
-    } catch (error) {
+      case 'puppeteer':
+        result = await executePuppeteerTool(serverInstance, tool, input);
+        break;
+      default:
+        throw new Error(`Unsupported server: ${server}`);
+    }
+  } catch (error) {
       console.error(`Error executing ${tool} on ${server}:`, error);
       return res.status(500).json({ 
         error: `Failed to execute ${tool}: ${error.message}`,
@@ -296,6 +315,8 @@ router.post('/execute', async (req, res) => {
         timestamp: new Date().toISOString()
       });
     }
+
+    sseEmitter.emit('message', { server, tool, result });
 
     res.json({
       success: true,
