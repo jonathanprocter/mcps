@@ -15,7 +15,8 @@
     "notion": "ts-node --project tsconfig.node.json src/servers/notion.ts",
     "openai": "ts-node --project tsconfig.node.json src/servers/openai.ts",
     "perplexity": "ts-node --project tsconfig.node.json src/servers/perplexity.ts",
-    "puppeteer": "ts-node --project tsconfig.node.json src/servers/puppeteer.ts"
+    "puppeteer": "ts-node --project tsconfig.node.json src/servers/puppeteer.ts",
+    "otter": "ts-node --project tsconfig.node.json src/servers/otter.ts"
   },
   "keywords": [],
   "author": "",
@@ -46,6 +47,7 @@
     "drizzle-zod": "^0.8.2",
     "dropbox": "^10.34.0",
     "express": "^5.1.0",
+    "form-data": "^4.0.3",
     "googleapis": "^152.0.0",
     "lucide-react": "^0.525.0",
     "openai": "^5.9.0",

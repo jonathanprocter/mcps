@@ -1220,3 +1220,4 @@ class PuppeteerMCPServer {
 
 const server = new PuppeteerMCPServer();
 server.run().catch(console.error);
+

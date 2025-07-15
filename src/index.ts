@@ -23,6 +23,7 @@ function checkSecrets() {
     NOTION_INTEGRATION_SECRET: process.env.NOTION_INTEGRATION_SECRET,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     PERPLEXITY_API_KEY: process.env.PERPLEXITY_API_KEY,
+    OTTER_API_TOKEN: process.env.OTTER_API_TOKEN,
   };
 }
 class MainMCPServer {
@@ -68,6 +69,10 @@ class MainMCPServer {
 
     if (secrets.PERPLEXITY_API_KEY) {
       this.availableServers.push('Perplexity');
+    }
+
+    if (secrets.OTTER_API_TOKEN) {
+      this.availableServers.push('Otter.ai');
     }
 
     // Puppeteer is always available (no API key needed)
@@ -704,3 +709,4 @@ class MainMCPServer {
 
 const server = new MainMCPServer();
 server.run().catch(console.error);
+

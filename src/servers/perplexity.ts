@@ -538,3 +538,4 @@ class PerplexityMCPServer {
 
 const server = new PerplexityMCPServer();
 server.run().catch(console.error);
+
