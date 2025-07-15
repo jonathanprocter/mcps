@@ -17,7 +17,7 @@ args = "npm run build"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm start"
+args = "RUN_HTTP_SERVER=true PORT=5000 HOST=0.0.0.0 npm start"
 
 [[workflows.workflow]]
 name = "Run Development Server"
