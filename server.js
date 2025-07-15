@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -69,6 +70,12 @@ app.get('/api/servers', (req, res) => {
 
 app.get('/api/servers/:serverName/tools', (req, res) => {
   const { serverName } = req.params;
+  
+  // Validate serverName parameter
+  if (!serverName || typeof serverName !== 'string') {
+    return res.status(400).json({ error: 'Invalid server name' });
+  }
+  
   const toolMap = {
     gmail: ['search_emails', 'send_email', 'get_email', 'mark_as_read', 'mark_as_unread', 'delete_email', 'get_attachments'],
     drive: ['list_files', 'upload_file', 'download_file', 'share_file', 'move_file', 'copy_file', 'delete_file'],
@@ -80,7 +87,12 @@ app.get('/api/servers/:serverName/tools', (req, res) => {
     puppeteer: ['scrape_page', 'take_screenshot', 'generate_pdf', 'fill_form', 'click_element', 'extract_links']
   };
   
-  res.json(toolMap[serverName] || []);
+  const tools = toolMap[serverName];
+  if (!tools) {
+    return res.status(404).json({ error: 'Server not found' });
+  }
+  
+  res.json(tools);
 });
 
 app.post('/api/execute', (req, res) => {
@@ -117,8 +129,19 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.get('*', (req, res) => {
+// Serve index.html for the root path
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Handle all other routes by serving index.html (for SPA routing)
+app.get('*', (req, res) => {
+  // Only serve index.html for non-API routes
+  if (!req.path.startsWith('/api/')) {
+    res.sendFile(path.join(__dirname, 'index.html'));
+  } else {
+    res.status(404).json({ error: 'API endpoint not found' });
+  }
 });
 
 app.listen(PORT, '0.0.0.0', () => {
