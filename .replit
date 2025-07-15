@@ -4,9 +4,19 @@ modules = ["nodejs-20"]
 channel = "stable-24_05"
 
 [workflows]
+runButton = "Run Development Server"
 
 [[workflows.workflow]]
 name = "Main Hub"
+author = 37925715
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Run Development Server"
 author = 37925715
 mode = "sequential"
 
