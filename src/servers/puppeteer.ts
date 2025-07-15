@@ -667,16 +667,16 @@ class PuppeteerMCPServer {
         if (!element) {
           throw new Error(`Element with selector "${selector}" not found`);
         }
-        screenshot = await element.screenshot({
+        screenshot = Buffer.from(await element.screenshot({
           type: format,
           quality: format === 'png' ? undefined : quality,
-        });
+        }));
       } else {
-        screenshot = await page.screenshot({
+        screenshot = Buffer.from(await page.screenshot({
           fullPage,
           type: format,
           quality: format === 'png' ? undefined : quality,
-        });
+        }));
       }
 
       const base64Screenshot = screenshot.toString('base64');
@@ -737,7 +737,7 @@ class PuppeteerMCPServer {
         },
       });
 
-      const base64PDF = pdf.toString('base64');
+      const base64PDF = Buffer.from(pdf).toString('base64');
 
       return {
         content: [
@@ -825,9 +825,16 @@ class PuppeteerMCPServer {
           case 'checkbox':
           case 'radio':
             if (value === 'true' || value === '1') {
-              await page.check(selector);
+              await page.click(selector);
             } else {
-              await page.uncheck(selector);
+              // For unchecking, we need to check if it's already checked first
+              const element = await page.$(selector);
+              if (element) {
+                const isChecked = await element.evaluate((el: any) => el.checked);
+                if (isChecked) {
+                  await page.click(selector);
+                }
+              }
             }
             break;
         }

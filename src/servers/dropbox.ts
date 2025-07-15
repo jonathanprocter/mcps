@@ -445,7 +445,7 @@ class DropboxMCPServer {
     const response = await this.dropbox.filesUpload({
       path,
       contents: buffer,
-      mode: { '.tag': mode },
+      mode: mode === 'update' ? { '.tag': mode, update: 'latest' } : { '.tag': mode },
       autorename,
     });
 
@@ -638,8 +638,9 @@ class DropboxMCPServer {
     const response = await this.dropbox.sharingCreateSharedLinkWithSettings({
       path,
       settings: {
-        short_url: shortUrl,
-        pending_upload: pendingUpload,
+        requested_visibility: { '.tag': shortUrl ? 'public' : 'team_only' },
+        link_password: undefined,
+        expires: undefined,
       },
     });
 
@@ -658,7 +659,6 @@ class DropboxMCPServer {
 
     const response = await this.dropbox.sharingGetSharedLinks({
       path,
-      direct_only: directOnly,
     });
 
     return {

@@ -428,7 +428,7 @@ class GmailMCPServer {
                     }
                 }
                 for (const part of payload.parts) {
-                    const bodyText = this.getBody(part);
+                    const bodyText = getBody(part);
                     if (bodyText)
                         return bodyText;
                 }

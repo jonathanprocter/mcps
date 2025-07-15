@@ -597,8 +597,8 @@ class OpenAIMCPServer {
     const maskBuffer = mask ? Buffer.from(mask, 'base64') : undefined;
 
     const response = await this.openai.images.edit({
-      image: imageBuffer,
-      mask: maskBuffer,
+      image: new File([imageBuffer], 'image.png', { type: 'image/png' }),
+      mask: maskBuffer ? new File([maskBuffer], 'mask.png', { type: 'image/png' }) : undefined,
       prompt,
       n,
       size: size as any,
@@ -631,7 +631,7 @@ class OpenAIMCPServer {
     const imageBuffer = Buffer.from(image, 'base64');
 
     const response = await this.openai.images.createVariation({
-      image: imageBuffer,
+      image: new File([imageBuffer], 'image.png', { type: 'image/png' }),
       n,
       size: size as any,
       response_format: responseFormat as any,
@@ -667,7 +667,7 @@ class OpenAIMCPServer {
     const fileBuffer = Buffer.from(file, 'base64');
 
     const response = await this.openai.audio.transcriptions.create({
-      file: fileBuffer,
+      file: new File([fileBuffer], 'audio.mp3', { type: 'audio/mpeg' }),
       model,
       language,
       prompt,
@@ -703,7 +703,7 @@ class OpenAIMCPServer {
     const fileBuffer = Buffer.from(file, 'base64');
 
     const response = await this.openai.audio.translations.create({
-      file: fileBuffer,
+      file: new File([fileBuffer], 'audio.mp3', { type: 'audio/mpeg' }),
       model,
       prompt,
       response_format: responseFormat as any,
