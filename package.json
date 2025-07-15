@@ -3,7 +3,18 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "gmail": "ts-node src/servers/gmail.ts",
+    "drive": "ts-node src/servers/drive.ts",
+    "calendar": "ts-node src/servers/calendar.ts",
+    "dropbox": "ts-node src/servers/dropbox.ts",
+    "notion": "ts-node src/servers/notion.ts",
+    "openai": "ts-node src/servers/openai.ts",
+    "perplexity": "ts-node src/servers/perplexity.ts",
+    "puppeteer": "ts-node src/servers/puppeteer.ts"
   },
   "keywords": [],
   "author": "",
