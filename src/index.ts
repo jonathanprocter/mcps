@@ -533,6 +533,39 @@ class MainMCPServer {
   }
 
   async run() {
+    // Check if we're in development mode (when run directly)
+    if (process.argv.includes('--dev') || process.env.NODE_ENV === 'development') {
+      console.log('🚀 iPhone MCP Server Hub - Development Mode\n');
+      
+      const secrets = checkSecrets();
+      console.log('📋 Available Servers:');
+      this.availableServers.forEach(server => {
+        console.log(`  ✅ ${server}`);
+      });
+      
+      console.log('\n🔧 Configuration Status:');
+      console.log(`  Google Services: ${secrets.GOOGLE_CLIENT_ID ? '✅' : '❌'} Configured`);
+      console.log(`  Dropbox: ${secrets.DROPBOX_ACCESS_TOKEN ? '✅' : '❌'} Configured`);
+      console.log(`  Notion: ${secrets.NOTION_INTEGRATION_SECRET ? '✅' : '❌'} Configured`);
+      console.log(`  OpenAI: ${secrets.OPENAI_API_KEY ? '✅' : '❌'} Configured`);
+      console.log(`  Perplexity: ${secrets.PERPLEXITY_API_KEY ? '✅' : '❌'} Configured`);
+      console.log(`  Puppeteer: ✅ Ready (No API key needed)`);
+      
+      console.log('\n🏃 Run individual servers:');
+      console.log('  npm run gmail      # Gmail MCP server');
+      console.log('  npm run drive      # Google Drive MCP server');
+      console.log('  npm run calendar   # Google Calendar MCP server');
+      console.log('  npm run dropbox    # Dropbox MCP server');
+      console.log('  npm run notion     # Notion MCP server');
+      console.log('  npm run openai     # OpenAI MCP server');
+      console.log('  npm run perplexity # Perplexity MCP server');
+      console.log('  npm run puppeteer  # Puppeteer MCP server');
+      
+      console.log('\n💡 To connect an MCP client, run this server via stdio transport');
+      return;
+    }
+    
+    // Production mode - use stdio transport for MCP clients
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     console.error('Main MCP server hub running on stdio');
