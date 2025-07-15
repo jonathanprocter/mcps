@@ -446,12 +446,23 @@ class NotionMCPServer {
     }
     async searchPages(args) {
         const { query, filter, sort, pageSize } = args;
-        const response = await this.notion.search({
+        const searchParams = {
             query,
-            filter,
-            sort,
             page_size: pageSize,
-        });
+        };
+        if (filter) {
+            searchParams.filter = {
+                property: 'object',
+                value: filter.value,
+            };
+        }
+        if (sort) {
+            searchParams.sort = {
+                timestamp: 'last_edited_time',
+                direction: sort.direction,
+            };
+        }
+        const response = await this.notion.search(searchParams);
         return {
             content: [
                 {
