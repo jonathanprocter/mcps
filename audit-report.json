@@ -1,0 +1,187 @@
+{
+  "timestamp": "2025-07-15T04:46:52.853Z",
+  "environment": {
+    "Google Services": {
+      "required": [
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "GOOGLE_REFRESH_TOKEN"
+      ],
+      "configured": true,
+      "status": "✅ Ready"
+    },
+    "Dropbox": {
+      "required": [
+        "DROPBOX_ACCESS_TOKEN"
+      ],
+      "configured": true,
+      "status": "✅ Ready"
+    },
+    "Notion": {
+      "required": [
+        "NOTION_INTEGRATION_SECRET"
+      ],
+      "configured": true,
+      "status": "✅ Ready"
+    },
+    "OpenAI": {
+      "required": [
+        "OPENAI_API_KEY"
+      ],
+      "configured": true,
+      "status": "✅ Ready"
+    },
+    "Perplexity": {
+      "required": [
+        "PERPLEXITY_API_KEY"
+      ],
+      "configured": true,
+      "status": "✅ Ready"
+    },
+    "Puppeteer": {
+      "required": [],
+      "configured": true,
+      "status": "✅ Ready"
+    }
+  },
+  "configuration": {
+    "package.json": {
+      "exists": true,
+      "size": 1424,
+      "status": "✅ Present"
+    },
+    "tsconfig.json": {
+      "exists": true,
+      "size": 686,
+      "status": "✅ Present"
+    },
+    "tsconfig.node.json": {
+      "exists": true,
+      "size": 557,
+      "status": "✅ Present"
+    },
+    ".env": {
+      "exists": true,
+      "size": 427,
+      "status": "✅ Present"
+    },
+    ".replit": {
+      "exists": true,
+      "size": 1452,
+      "status": "✅ Present"
+    }
+  },
+  "dependencies": {
+    "total": 15,
+    "critical": {
+      "@modelcontextprotocol/sdk": {
+        "installed": true,
+        "version": "1.15.1",
+        "status": "✅ Installed"
+      },
+      "googleapis": {
+        "installed": true,
+        "version": "152.0.0",
+        "status": "✅ Installed"
+      },
+      "dropbox": {
+        "installed": true,
+        "version": "10.34.0",
+        "status": "✅ Installed"
+      },
+      "@notionhq/client": {
+        "installed": true,
+        "version": "4.0.1",
+        "status": "✅ Installed"
+      },
+      "openai": {
+        "installed": true,
+        "version": "5.9.0",
+        "status": "✅ Installed"
+      },
+      "puppeteer": {
+        "installed": true,
+        "version": "24.12.1",
+        "status": "✅ Installed"
+      },
+      "typescript": {
+        "installed": true,
+        "version": "5.8.3",
+        "status": "✅ Installed"
+      },
+      "ts-node": {
+        "installed": true,
+        "version": "10.9.2",
+        "status": "✅ Installed"
+      }
+    }
+  },
+  "servers": {
+    "gmail": {
+      "typescript": "✅ Present",
+      "compiled": "✅ Present",
+      "status": "✅ Ready"
+    },
+    "drive": {
+      "typescript": "✅ Present",
+      "compiled": "✅ Present",
+      "status": "✅ Ready"
+    },
+    "calendar": {
+      "typescript": "✅ Present",
+      "compiled": "✅ Present",
+      "status": "✅ Ready"
+    },
+    "dropbox": {
+      "typescript": "✅ Present",
+      "compiled": "✅ Present",
+      "status": "✅ Ready"
+    },
+    "notion": {
+      "typescript": "✅ Present",
+      "compiled": "✅ Present",
+      "status": "✅ Ready"
+    },
+    "openai": {
+      "typescript": "✅ Present",
+      "compiled": "✅ Present",
+      "status": "✅ Ready"
+    },
+    "perplexity": {
+      "typescript": "✅ Present",
+      "compiled": "✅ Present",
+      "status": "✅ Ready"
+    },
+    "puppeteer": {
+      "typescript": "✅ Present",
+      "compiled": "✅ Present",
+      "status": "✅ Ready"
+    }
+  },
+  "compilation": {
+    "success": true,
+    "output": "\n> workspace@1.0.0 build\n> tsc\n\n",
+    "status": "✅ Success"
+  },
+  "runtime": {
+    "node": "v20.18.1",
+    "npm": "10.8.2",
+    "typescript": "Version 5.8.3",
+    "status": "✅ Ready"
+  },
+  "recommendations": [
+    {
+      "priority": "info",
+      "category": "Ready",
+      "issue": "6 services ready to use",
+      "solution": "Test services: npm run google-services, npm run dropbox, npm run notion, npm run openai, npm run perplexity, npm run puppeteer"
+    }
+  ],
+  "summary": {
+    "totalServices": 6,
+    "readyServices": 6,
+    "compilationStatus": "Success",
+    "criticalIssues": 0,
+    "overallHealth": "🟢 Excellent"
+  }
+}
