@@ -832,12 +832,61 @@
       }
     }
 
+    async function callActualAPI(server, tool, input) {
+      try {
+        const response = await fetch('/api/execute', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            server: server,
+            tool: tool,
+            input: input
+          })
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || `Server error: ${response.status}`);
+        }
+
+        if (data.success) {
+          return data.result;
+        } else {
+          throw new Error(data.error || 'Unknown error occurred');
+        }
+      } catch (error) {
+        console.error('API call failed:', error);
+        throw error;
+      }
+    }
+
     async function simulateAPICall(server, tool, input) {
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-      
-      // Mock responses for demonstration
-      const mockResponses = {
+      // Try to call the actual API first
+      try {
+        const result = await callActualAPI(server, tool, input);
+        
+        // Format the result for display
+        let displayResult;
+        if (typeof result === 'object') {
+          displayResult = JSON.stringify(result, null, 2);
+        } else {
+          displayResult = String(result);
+        }
+        
+        displayOutput(`✅ ${tool} executed successfully on ${server}:\n\n${displayResult}`);
+        return;
+      } catch (error) {
+        console.error('Real API failed, showing error:', error);
+        displayOutput(`❌ API Error: ${error.message}\n\nThis might be because:\n• API keys are not configured\n• Server is not running\n• Network connection issue\n\nPlease check your environment variables and server status.`, true);
+        return;
+      }
+    }
+
+    // Fallback mock responses (no longer used but kept for reference)
+    const mockResponses = {
         gmail: {
           search_emails: `Found 5 emails matching your query: "${input}"\n\n📧 Email 1: "Meeting Tomorrow"\n   From: john@example.com\n   Date: ${new Date().toLocaleDateString()}\n   Preview: Let's discuss the project...\n\n📧 Email 2: "Project Update"\n   From: sarah@example.com\n   Date: ${new Date().toLocaleDateString()}\n   Preview: I've completed the tasks...\n\n📧 Email 3: "Weekly Report"\n   From: team@example.com\n   Date: ${new Date().toLocaleDateString()}\n   Preview: This week's progress summary...`,
           send_email: `✅ Email sent successfully!\n\nTo: Generated recipient based on "${input}"\nSubject: Auto-generated from your message\nSent at: ${new Date().toLocaleString()}\n\nYour message has been delivered to the recipient's inbox.`,

@@ -145,58 +145,45 @@ router.post('/execute', async (req, res) => {
       return res.status(404).json({ error: 'Server not found' });
     }
 
-    // Mock execution for now - in reality, you'd call the actual MCP server methods
-    const mockResults = {
-      gmail: {
-        search_emails: `Found 5 emails matching your query: "${input}"\n\nEmail 1: Subject: "Meeting Tomorrow"\nFrom: john@example.com\nDate: ${new Date().toLocaleDateString()}\n\nEmail 2: Subject: "Project Update"\nFrom: sarah@example.com\nDate: ${new Date().toLocaleDateString()}`,
-        send_email: `Email sent successfully!\n\nTo: recipient@example.com\nSubject: Generated from: "${input}"\nSent at: ${new Date().toLocaleString()}`,
-        get_email: `Email Details:\n\nSubject: Re: ${input}\nFrom: contact@example.com\nDate: ${new Date().toLocaleDateString()}\nContent: This is a sample email response based on your query.`
-      },
-      drive: {
-        list_files: `Files in Google Drive:\n\n📁 Documents/\n📁 Photos/\n📄 Project_Plan.pdf (2.1 MB)\n📄 Meeting_Notes.docx (456 KB)\n📄 Budget_2025.xlsx (789 KB)\n\nQuery: "${input}"\nLast updated: ${new Date().toLocaleString()}`,
-        upload_file: `File uploaded successfully!\n\nFile: "${input}"\nSize: 1.2 MB\nLocation: /Documents/\nShare link: https://drive.google.com/file/d/example123\nUploaded: ${new Date().toLocaleString()}`,
-        share_file: `File shared successfully!\n\nFile: "${input}"\nShared with: team@example.com\nPermissions: View only\nShare link: https://drive.google.com/file/d/example456`
-      },
-      calendar: {
-        list_events: `Upcoming Events:\n\n📅 Team Meeting\nDate: ${new Date().toLocaleDateString()}\nTime: 10:00 AM - 11:00 AM\nLocation: Conference Room A\n\n📅 Project Review\nDate: ${new Date(Date.now() + 86400000).toLocaleDateString()}\nTime: 2:00 PM - 3:00 PM\nLocation: Zoom\n\nQuery: "${input}"`,
-        create_event: `Event created successfully!\n\nTitle: ${input}\nDate: ${new Date().toLocaleDateString()}\nTime: 2:00 PM - 3:00 PM\nCreated: ${new Date().toLocaleString()}\nEvent ID: cal_event_123456`,
-        search_events: `Found 3 events matching "${input}":\n\n1. Weekly Standup - Today 9:00 AM\n2. Client Call - Tomorrow 3:00 PM\n3. Team Lunch - Friday 12:00 PM`
-      },
-      dropbox: {
-        list_files: `Dropbox Files:\n\n📁 Work/\n📁 Personal/\n📄 Resume.pdf (543 KB)\n📄 Presentation.pptx (2.8 MB)\n🖼️ Photo.jpg (1.2 MB)\n\nQuery: "${input}"\nTotal files: 156\nUsed space: 2.1 GB / 5 GB`,
-        upload_file: `File uploaded to Dropbox!\n\nFile: "${input}"\nPath: /Work/\nSize: 890 KB\nUploaded: ${new Date().toLocaleString()}\nShare link: https://dropbox.com/s/example789`,
-        share_file: `File shared from Dropbox!\n\nFile: "${input}"\nShared link: https://dropbox.com/s/shared123\nExpires: Never\nCreated: ${new Date().toLocaleString()}`
-      },
-      notion: {
-        search_pages: `Found 4 pages matching "${input}":\n\n📄 Project Documentation\nLast edited: ${new Date().toLocaleDateString()}\nURL: https://notion.so/page1\n\n📄 Meeting Notes\nLast edited: ${new Date().toLocaleDateString()}\nURL: https://notion.so/page2\n\n📄 Ideas & Brainstorming\nLast edited: ${new Date().toLocaleDateString()}\nURL: https://notion.so/page3`,
-        create_page: `Page created in Notion!\n\nTitle: ${input}\nURL: https://notion.so/new-page-123\nCreated: ${new Date().toLocaleString()}\nTemplate: Default\nParent: Root workspace`,
-        query_database: `Database Query Results:\n\nQuery: "${input}"\nFound 7 entries:\n\n1. Task: Complete project proposal\n   Status: In Progress\n   Due: ${new Date().toLocaleDateString()}\n\n2. Task: Review code changes\n   Status: Todo\n   Due: ${new Date(Date.now() + 86400000).toLocaleDateString()}`
-      },
-      openai: {
-        chat_completion: `OpenAI GPT-4 Response:\n\nQuery: "${input}"\n\nBased on your request, here's a comprehensive response that addresses your question with detailed analysis and practical insights. The AI has processed your input and generated this contextually relevant answer that aims to be helpful and informative.\n\nGenerated: ${new Date().toLocaleString()}\nModel: GPT-4\nTokens used: 150`,
-        generate_image: `Image generated successfully!\n\nPrompt: "${input}"\nModel: DALL-E 3\nSize: 1024x1024\nStyle: Vivid\nGenerated: ${new Date().toLocaleString()}\nImage URL: https://example.com/generated-image.jpg\nRevision ID: img_abc123`,
-        analyze_image: `Image Analysis Results:\n\nPrompt: "${input}"\n\nDetected objects:\n- Person (confidence: 95%)\n- Car (confidence: 89%)\n- Building (confidence: 76%)\n\nScene: Urban street scene\nColors: Predominantly blue and gray tones\nAnalyzed: ${new Date().toLocaleString()}`
-      },
-      perplexity: {
-        search_and_answer: `Perplexity Search Results:\n\nQuery: "${input}"\n\nBased on the latest web search, here are the key findings:\n\n• Recent developments show significant progress in this area\n• Multiple sources confirm the current trends\n• Expert opinions suggest continued growth\n• Latest data indicates positive outcomes\n\nSources:\n- TechCrunch (${new Date().toLocaleDateString()})\n- Reuters (${new Date().toLocaleDateString()})\n- Industry Report (${new Date().toLocaleDateString()})\n\nSearched: ${new Date().toLocaleString()}`,
-        fact_check: `Fact Check Results:\n\nStatement: "${input}"\n\nVerification Status: ✅ VERIFIED\n\nFindings:\n- Claim is supported by multiple reliable sources\n- Data cross-referenced with official records\n- No contradictory evidence found\n- Last verified: ${new Date().toLocaleString()}\n\nSources:\n- Official documentation\n- Academic research\n- Government data`,
-        research_topic: `Research Report: "${input}"\n\nExecutive Summary:\nComprehensive analysis reveals multiple perspectives on this topic with emerging trends and significant implications.\n\nKey Findings:\n• Historical context shows evolution over time\n• Current state indicates active development\n• Future projections suggest continued relevance\n• Expert consensus supports main conclusions\n\nResearched: ${new Date().toLocaleString()}`
-      },
-      puppeteer: {
-        scrape_page: `Web Scraping Results:\n\nURL: Based on "${input}"\n\nExtracted Content:\n- Title: Sample Website Title\n- Meta description: This is a sample page description\n- Main content: Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n- Links found: 15\n- Images found: 8\n\nPage load time: 2.3 seconds\nScraping completed: ${new Date().toLocaleString()}\nStatus: Success`,
-        take_screenshot: `Screenshot captured!\n\nURL: Based on "${input}"\nDimensions: 1920x1080\nFormat: PNG\nFile size: 234 KB\nSaved to: /screenshots/capture_${Date.now()}.png\nCaptured: ${new Date().toLocaleString()}\nViewport: Desktop`,
-        generate_pdf: `PDF generated successfully!\n\nContent: "${input}"\nPages: 1\nFile size: 127 KB\nSaved to: /pdfs/document_${Date.now()}.pdf\nGenerated: ${new Date().toLocaleString()}\nFormat: A4\nOrientation: Portrait`
+    // Execute the actual MCP server tool
+    let result;
+    try {
+      switch (server) {
+        case 'gmail':
+          result = await executeGmailTool(serverInstance, tool, input);
+          break;
+        case 'drive':
+          result = await executeDriveTool(serverInstance, tool, input);
+          break;
+        case 'calendar':
+          result = await executeCalendarTool(serverInstance, tool, input);
+          break;
+        case 'dropbox':
+          result = await executeDropboxTool(serverInstance, tool, input);
+          break;
+        case 'notion':
+          result = await executeNotionTool(serverInstance, tool, input);
+          break;
+        case 'openai':
+          result = await executeOpenAITool(serverInstance, tool, input);
+          break;
+        case 'perplexity':
+          result = await executePerplexityTool(serverInstance, tool, input);
+          break;
+        case 'puppeteer':
+          result = await executePuppeteerTool(serverInstance, tool, input);
+          break;
+        default:
+          throw new Error(`Unsupported server: ${server}`);
       }
-    };
-
-    const serverResults = mockResults[server as keyof typeof mockResults];
-    if (!serverResults) {
-      return res.status(404).json({ error: 'Server not found' });
-    }
-
-    const result = serverResults[tool as keyof typeof serverResults];
-    if (!result) {
-      return res.status(404).json({ error: 'Tool not found' });
+    } catch (error) {
+      console.error(`Error executing ${tool} on ${server}:`, error);
+      return res.status(500).json({ 
+        error: `Failed to execute ${tool}: ${error.message}`,
+        server,
+        tool,
+        timestamp: new Date().toISOString()
+      });
     }
 
     res.json({
@@ -206,6 +193,396 @@ router.post('/execute', async (req, res) => {
       tool,
       timestamp: new Date().toISOString()
     });
+
+  } catch (error) {
+    console.error('Error in execute endpoint:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Gmail tool execution
+async function executeGmailTool(serverInstance: any, tool: string, input: string) {
+  const params = parseToolInput(input);
+  
+  switch (tool) {
+    case 'search_emails':
+      return await serverInstance.searchEmails({ 
+        query: params.query || input,
+        maxResults: params.maxResults || 10
+      });
+    case 'send_email':
+      return await serverInstance.sendEmail({
+        to: params.to || extractEmailFromInput(input),
+        subject: params.subject || `Message: ${input.substring(0, 50)}`,
+        body: params.body || input
+      });
+    case 'get_email':
+      return await serverInstance.getEmail({ id: params.id || input });
+    case 'mark_as_read':
+      return await serverInstance.markAsRead({ id: params.id || input });
+    case 'mark_as_unread':
+      return await serverInstance.markAsUnread({ id: params.id || input });
+    case 'delete_email':
+      return await serverInstance.deleteEmail({ id: params.id || input });
+    case 'get_attachments':
+      return await serverInstance.getAttachments({ messageId: params.messageId || input });
+    default:
+      throw new Error(`Unsupported Gmail tool: ${tool}`);
+  }
+}
+
+// Drive tool execution
+async function executeDriveTool(serverInstance: any, tool: string, input: string) {
+  const params = parseToolInput(input);
+  
+  switch (tool) {
+    case 'list_files':
+      return await serverInstance.listFiles({ 
+        folderId: params.folderId,
+        pageSize: params.pageSize || 20
+      });
+    case 'upload_file':
+      return await serverInstance.uploadFile({
+        name: params.name || input,
+        content: params.content || input,
+        mimeType: params.mimeType || 'text/plain',
+        parentId: params.parentId
+      });
+    case 'download_file':
+      return await serverInstance.downloadFile({ fileId: params.fileId || input });
+    case 'share_file':
+      return await serverInstance.shareFile({
+        fileId: params.fileId || input,
+        email: params.email || extractEmailFromInput(input),
+        role: params.role || 'reader'
+      });
+    case 'move_file':
+      return await serverInstance.moveFile({
+        fileId: params.fileId || input,
+        newParentId: params.newParentId || params.parentId
+      });
+    case 'copy_file':
+      return await serverInstance.copyFile({
+        fileId: params.fileId || input,
+        name: params.name || `Copy of ${input}`,
+        parentId: params.parentId
+      });
+    case 'delete_file':
+      return await serverInstance.deleteFile({ fileId: params.fileId || input });
+    default:
+      throw new Error(`Unsupported Drive tool: ${tool}`);
+  }
+}
+
+// Calendar tool execution
+async function executeCalendarTool(serverInstance: any, tool: string, input: string) {
+  const params = parseToolInput(input);
+  
+  switch (tool) {
+    case 'list_events':
+      return await serverInstance.listEvents({
+        calendarId: params.calendarId || 'primary',
+        maxResults: params.maxResults || 10,
+        timeMin: params.timeMin || new Date().toISOString()
+      });
+    case 'create_event':
+      return await serverInstance.createEvent({
+        calendarId: params.calendarId || 'primary',
+        summary: params.summary || input,
+        description: params.description,
+        start: params.start || { dateTime: new Date(Date.now() + 3600000).toISOString() },
+        end: params.end || { dateTime: new Date(Date.now() + 7200000).toISOString() },
+        attendees: params.attendees
+      });
+    case 'update_event':
+      return await serverInstance.updateEvent({
+        calendarId: params.calendarId || 'primary',
+        eventId: params.eventId || input,
+        summary: params.summary,
+        description: params.description
+      });
+    case 'delete_event':
+      return await serverInstance.deleteEvent({
+        calendarId: params.calendarId || 'primary',
+        eventId: params.eventId || input
+      });
+    case 'search_events':
+      return await serverInstance.searchEvents({
+        calendarId: params.calendarId || 'primary',
+        query: params.query || input,
+        maxResults: params.maxResults || 10
+      });
+    case 'get_busy_times':
+      return await serverInstance.getBusyTimes({
+        calendarId: params.calendarId || 'primary',
+        timeMin: params.timeMin || new Date().toISOString(),
+        timeMax: params.timeMax || new Date(Date.now() + 86400000).toISOString()
+      });
+    default:
+      throw new Error(`Unsupported Calendar tool: ${tool}`);
+  }
+}
+
+// Dropbox tool execution
+async function executeDropboxTool(serverInstance: any, tool: string, input: string) {
+  const params = parseToolInput(input);
+  
+  switch (tool) {
+    case 'list_files':
+      return await serverInstance.listFiles({
+        path: params.path || '',
+        recursive: params.recursive || false,
+        limit: params.limit || 20
+      });
+    case 'upload_file':
+      return await serverInstance.uploadFile({
+        path: params.path || `/${input}`,
+        contents: params.contents || input,
+        mode: params.mode || 'add',
+        autorename: params.autorename || true
+      });
+    case 'download_file':
+      return await serverInstance.downloadFile({
+        path: params.path || input,
+        rev: params.rev
+      });
+    case 'share_file':
+      return await serverInstance.shareFile({
+        path: params.path || input,
+        settings: params.settings || { requested_visibility: 'public' }
+      });
+    case 'move_file':
+      return await serverInstance.moveFile({
+        from_path: params.from_path || input,
+        to_path: params.to_path || `${input}_moved`,
+        autorename: params.autorename || true
+      });
+    case 'get_space_usage':
+      return await serverInstance.getSpaceUsage();
+    default:
+      throw new Error(`Unsupported Dropbox tool: ${tool}`);
+  }
+}
+
+// Notion tool execution
+async function executeNotionTool(serverInstance: any, tool: string, input: string) {
+  const params = parseToolInput(input);
+  
+  switch (tool) {
+    case 'search_pages':
+      return await serverInstance.searchPages({
+        query: params.query || input,
+        pageSize: params.pageSize || 10
+      });
+    case 'create_page':
+      return await serverInstance.createPage({
+        parent: params.parent || { type: 'page_id', page_id: process.env.NOTION_PAGE_ID },
+        properties: {
+          title: {
+            title: [{ text: { content: params.title || input } }]
+          }
+        },
+        children: params.children || []
+      });
+    case 'update_page':
+      return await serverInstance.updatePage({
+        pageId: params.pageId || input,
+        properties: params.properties || {}
+      });
+    case 'query_database':
+      return await serverInstance.queryDatabase({
+        databaseId: params.databaseId || input,
+        filter: params.filter,
+        sorts: params.sorts,
+        pageSize: params.pageSize || 10
+      });
+    case 'create_database_entry':
+      return await serverInstance.createDatabaseEntry({
+        databaseId: params.databaseId || input,
+        properties: params.properties || {}
+      });
+    case 'append_block_children':
+      return await serverInstance.appendBlockChildren({
+        blockId: params.blockId || input,
+        children: params.children || [
+          {
+            paragraph: {
+              rich_text: [{ text: { content: input } }]
+            }
+          }
+        ]
+      });
+    default:
+      throw new Error(`Unsupported Notion tool: ${tool}`);
+  }
+}
+
+// OpenAI tool execution
+async function executeOpenAITool(serverInstance: any, tool: string, input: string) {
+  const params = parseToolInput(input);
+  
+  switch (tool) {
+    case 'chat_completion':
+      return await serverInstance.chatCompletion({
+        model: params.model || 'gpt-4',
+        messages: params.messages || [{ role: 'user', content: input }],
+        maxTokens: params.maxTokens || 1000,
+        temperature: params.temperature || 0.7
+      });
+    case 'generate_image':
+      return await serverInstance.generateImage({
+        prompt: params.prompt || input,
+        model: params.model || 'dall-e-3',
+        size: params.size || '1024x1024',
+        quality: params.quality || 'standard',
+        n: params.n || 1
+      });
+    case 'analyze_image':
+      return await serverInstance.analyzeImage({
+        imageUrl: params.imageUrl || input,
+        prompt: params.prompt || 'What do you see in this image?',
+        model: params.model || 'gpt-4-vision-preview'
+      });
+    case 'transcribe_audio':
+      return await serverInstance.transcribeAudio({
+        file: params.file || input,
+        model: params.model || 'whisper-1',
+        language: params.language
+      });
+    case 'text_to_speech':
+      return await serverInstance.textToSpeech({
+        input: params.input || input,
+        model: params.model || 'tts-1',
+        voice: params.voice || 'alloy'
+      });
+    case 'create_embedding':
+      return await serverInstance.createEmbedding({
+        input: params.input || input,
+        model: params.model || 'text-embedding-3-small'
+      });
+    default:
+      throw new Error(`Unsupported OpenAI tool: ${tool}`);
+  }
+}
+
+// Perplexity tool execution
+async function executePerplexityTool(serverInstance: any, tool: string, input: string) {
+  const params = parseToolInput(input);
+  
+  switch (tool) {
+    case 'search_and_answer':
+      return await serverInstance.searchAndAnswer({
+        query: params.query || input,
+        model: params.model || 'sonar-small-online'
+      });
+    case 'fact_check':
+      return await serverInstance.factCheck({
+        claim: params.claim || input,
+        model: params.model || 'sonar-small-online'
+      });
+    case 'research_topic':
+      return await serverInstance.researchTopic({
+        topic: params.topic || input,
+        depth: params.depth || 'comprehensive'
+      });
+    case 'compare_topics':
+      return await serverInstance.compareTopics({
+        topics: params.topics || [input],
+        aspects: params.aspects || ['advantages', 'disadvantages']
+      });
+    case 'latest_news':
+      return await serverInstance.getLatestNews({
+        query: params.query || input,
+        limit: params.limit || 10
+      });
+    case 'generate_summary':
+      return await serverInstance.generateSummary({
+        text: params.text || input,
+        length: params.length || 'medium'
+      });
+    default:
+      throw new Error(`Unsupported Perplexity tool: ${tool}`);
+  }
+}
+
+// Puppeteer tool execution
+async function executePuppeteerTool(serverInstance: any, tool: string, input: string) {
+  const params = parseToolInput(input);
+  
+  switch (tool) {
+    case 'scrape_page':
+      return await serverInstance.scrapePage({
+        url: params.url || input,
+        selector: params.selector,
+        waitFor: params.waitFor || 'networkidle2'
+      });
+    case 'take_screenshot':
+      return await serverInstance.takeScreenshot({
+        url: params.url || input,
+        options: {
+          type: params.type || 'png',
+          quality: params.quality || 90,
+          fullPage: params.fullPage || true
+        }
+      });
+    case 'generate_pdf':
+      return await serverInstance.generatePDF({
+        url: params.url || input,
+        options: {
+          format: params.format || 'A4',
+          printBackground: params.printBackground || true
+        }
+      });
+    case 'fill_form':
+      return await serverInstance.fillForm({
+        url: params.url || input,
+        formData: params.formData || {}
+      });
+    case 'click_element':
+      return await serverInstance.clickElement({
+        url: params.url || input,
+        selector: params.selector || 'button'
+      });
+    case 'extract_links':
+      return await serverInstance.extractLinks({
+        url: params.url || input,
+        type: params.type || 'all'
+      });
+    default:
+      throw new Error(`Unsupported Puppeteer tool: ${tool}`);
+  }
+}
+
+// Helper functions
+function parseToolInput(input: string): any {
+  try {
+    // Try to parse as JSON first
+    return JSON.parse(input);
+  } catch {
+    // If not JSON, try to extract common patterns
+    const params: any = {};
+    
+    // Extract email addresses
+    const emailMatch = input.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/);
+    if (emailMatch) params.email = emailMatch[0];
+    
+    // Extract URLs
+    const urlMatch = input.match(/https?:\/\/[^\s]+/);
+    if (urlMatch) params.url = urlMatch[0];
+    
+    // Extract file IDs (assuming they're alphanumeric strings)
+    const fileIdMatch = input.match(/\b[A-Za-z0-9_-]{10,}\b/);
+    if (fileIdMatch) params.fileId = fileIdMatch[0];
+    
+    return params;
+  }
+}
+
+function extractEmailFromInput(input: string): string {
+  const emailMatch = input.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/);
+  return emailMatch ? emailMatch[0] : 'user@example.com';
+}
+
   } catch (error) {
     console.error('Error executing tool:', error);
     res.status(500).json({ error: 'Failed to execute tool' });
