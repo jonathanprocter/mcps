@@ -13,6 +13,11 @@
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node",
-    "transpileOnly": true
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "ESNext",
+      "target": "ES2020",
+      "moduleResolution": "node"
+    }
   }
 }
