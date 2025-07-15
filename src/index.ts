@@ -6,10 +6,9 @@ import {
   ListToolsRequestSchema,
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
-import { checkSecrets } from './utils/env.js';
 import express from 'express';
 import cors from 'cors';
-
+import dotenv from 'dotenv';
 class MainMCPServer {
   private server: Server;
   private availableServers: string[] = [];
@@ -34,27 +33,27 @@ class MainMCPServer {
 
   private checkAvailableServers() {
     const secrets = checkSecrets();
-    
+
     if (secrets.GOOGLE_CLIENT_ID && secrets.GOOGLE_CLIENT_SECRET && secrets.GOOGLE_REFRESH_TOKEN) {
       this.availableServers.push('Gmail', 'Google Drive', 'Google Calendar');
     }
-    
+
     if (secrets.DROPBOX_ACCESS_TOKEN) {
       this.availableServers.push('Dropbox');
     }
-    
+
     if (secrets.NOTION_INTEGRATION_SECRET) {
       this.availableServers.push('Notion');
     }
-    
+
     if (secrets.OPENAI_API_KEY) {
       this.availableServers.push('OpenAI');
     }
-    
+
     if (secrets.PERPLEXITY_API_KEY) {
       this.availableServers.push('Perplexity');
     }
-    
+
     // Puppeteer is always available (no API key needed)
     this.availableServers.push('Puppeteer');
   }
@@ -607,7 +606,7 @@ class MainMCPServer {
 
     const PORT = Number(process.env.PORT) || 5000;
     const HOST = process.env.HOST || '0.0.0.0';
-    
+
     const server = app.listen(PORT, HOST, () => {
       console.log(`🌐 HTTP API server running on http://${HOST}:${PORT}`);
       console.log(`📊 Health check: http://${HOST}:${PORT}/`);
@@ -637,13 +636,13 @@ class MainMCPServer {
     // Check if we're in development mode (when run directly)
     if (process.argv.includes('--dev') || process.env.NODE_ENV === 'development') {
       console.log('🚀 iPhone MCP Server Hub - Development Mode\n');
-      
+
       const secrets = checkSecrets();
       console.log('📋 Available Servers:');
       this.availableServers.forEach(server => {
         console.log(`  ✅ ${server}`);
       });
-      
+
       console.log('\n🔧 Configuration Status:');
       console.log(`  Google Services: ${secrets.GOOGLE_CLIENT_ID ? '✅' : '❌'} Configured`);
       console.log(`  Dropbox: ${secrets.DROPBOX_ACCESS_TOKEN ? '✅' : '❌'} Configured`);
@@ -651,7 +650,7 @@ class MainMCPServer {
       console.log(`  OpenAI: ${secrets.OPENAI_API_KEY ? '✅' : '❌'} Configured`);
       console.log(`  Perplexity: ${secrets.PERPLEXITY_API_KEY ? '✅' : '❌'} Configured`);
       console.log(`  Puppeteer: ✅ Ready (No API key needed)`);
-      
+
       console.log('\n🏃 Run individual servers:');
       console.log('  npm run gmail      # Gmail MCP server');
       console.log('  npm run drive      # Google Drive MCP server');
@@ -661,25 +660,25 @@ class MainMCPServer {
       console.log('  npm run openai     # OpenAI MCP server');
       console.log('  npm run perplexity # Perplexity MCP server');
       console.log('  npm run puppeteer  # Puppeteer MCP server');
-      
+
       console.log('\n💡 To connect an MCP client, run this server via stdio transport');
       console.log('🌐 Starting HTTP API server for web access...\n');
-      
+
       // Start HTTP server in dev mode
       this.setupHttpServer();
       return;
     }
-    
+
     // Production mode - check if we should run HTTP server for deployment
     if (process.env.NODE_ENV === 'production' || process.env.RUN_HTTP_SERVER === 'true') {
       console.log('🌐 iPhone MCP Server Hub - Production Mode (HTTP Server)');
       console.log('🚀 Starting HTTP API server for web deployment...\n');
-      
+
       // Start HTTP server in production mode
       this.setupHttpServer();
       return;
     }
-    
+
     // Default MCP stdio transport for MCP clients
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
