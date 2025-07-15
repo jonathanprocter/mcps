@@ -14,6 +14,7 @@ A comprehensive collection of Model Context Protocol (MCP) servers designed for 
 - **OpenAI** - Full AI capabilities including chat, image generation, audio processing, and more
 - **Perplexity** - Real-time web search and research with citations and fact-checking
 - **Puppeteer** - Web scraping and automation for data extraction and testing
+- **Otter.ai** - Transcription management with audio upload and transcript retrieval
 
 ## Quick Start
 

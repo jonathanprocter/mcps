@@ -651,3 +651,4 @@ class GoogleDriveMCPServer {
 
 const server = new GoogleDriveMCPServer();
 server.run().catch(console.error);
+

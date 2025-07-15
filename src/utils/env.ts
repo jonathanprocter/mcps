@@ -23,6 +23,7 @@ export interface Secrets {
   NOTION_INTEGRATION_SECRET?: string;
   OPENAI_API_KEY?: string;
   PERPLEXITY_API_KEY?: string;
+  OTTER_API_TOKEN?: string;
 }
 
 export function checkSecrets(): Secrets {
@@ -34,5 +35,7 @@ export function checkSecrets(): Secrets {
     NOTION_INTEGRATION_SECRET: process.env.NOTION_INTEGRATION_SECRET,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     PERPLEXITY_API_KEY: process.env.PERPLEXITY_API_KEY,
+    OTTER_API_TOKEN: process.env.OTTER_API_TOKEN,
   };
 }
+

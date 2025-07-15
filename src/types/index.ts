@@ -246,3 +246,12 @@ export interface ScrapingResult {
   images?: string[];
   metadata?: Record<string, any>;
 }
+// Otter.ai Types
+export interface OtterTranscript {
+  id: string;
+  title: string;
+  created_time: string;
+  status: 'processing' | 'completed' | 'failed';
+  url?: string;
+}
+

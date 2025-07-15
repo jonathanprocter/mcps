@@ -824,3 +824,4 @@ class NotionMCPServer {
 
 const server = new NotionMCPServer();
 server.run().catch(console.error);
+
