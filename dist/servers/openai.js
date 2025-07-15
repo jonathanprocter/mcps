@@ -699,4 +699,3 @@ class OpenAIMCPServer {
 }
 const server = new OpenAIMCPServer();
 server.run().catch(console.error);
-//# sourceMappingURL=openai.js.map

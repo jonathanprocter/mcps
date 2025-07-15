@@ -607,4 +607,3 @@ class DropboxMCPServer {
 }
 const server = new DropboxMCPServer();
 server.run().catch(console.error);
-//# sourceMappingURL=dropbox.js.map

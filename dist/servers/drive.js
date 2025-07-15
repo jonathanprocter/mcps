@@ -575,4 +575,3 @@ class GoogleDriveMCPServer {
 }
 const server = new GoogleDriveMCPServer();
 server.run().catch(console.error);
-//# sourceMappingURL=drive.js.map

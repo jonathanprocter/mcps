@@ -655,4 +655,3 @@ class GoogleCalendarMCPServer {
 }
 const server = new GoogleCalendarMCPServer();
 server.run().catch(console.error);
-//# sourceMappingURL=calendar.js.map

@@ -1037,4 +1037,3 @@ class PuppeteerMCPServer {
 }
 const server = new PuppeteerMCPServer();
 server.run().catch(console.error);
-//# sourceMappingURL=puppeteer.js.map
