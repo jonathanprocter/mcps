@@ -7,6 +7,8 @@ import {
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
 import { checkSecrets } from './utils/env.js';
+import express from 'express';
+import cors from 'cors';
 
 class MainMCPServer {
   private server: Server;
@@ -532,6 +534,85 @@ class MainMCPServer {
     };
   }
 
+  private setupHttpServer() {
+    const app = express();
+    app.use(cors());
+    app.use(express.json());
+
+    // Health check endpoint
+    app.get('/', (req, res) => {
+      const secrets = checkSecrets();
+      res.json({
+        name: 'iPhone MCP Server Hub',
+        version: '1.0.0',
+        status: 'running',
+        availableServers: this.availableServers,
+        configuration: {
+          googleServices: !!(secrets.GOOGLE_CLIENT_ID && secrets.GOOGLE_CLIENT_SECRET && secrets.GOOGLE_REFRESH_TOKEN),
+          dropbox: !!secrets.DROPBOX_ACCESS_TOKEN,
+          notion: !!secrets.NOTION_INTEGRATION_SECRET,
+          openai: !!secrets.OPENAI_API_KEY,
+          perplexity: !!secrets.PERPLEXITY_API_KEY,
+          puppeteer: true
+        },
+        endpoints: {
+          health: '/',
+          servers: '/api/servers',
+          serverInfo: '/api/servers/:name',
+          requirements: '/api/requirements',
+          setup: '/api/setup/:service'
+        }
+      });
+    });
+
+    // List available servers
+    app.get('/api/servers', async (req, res) => {
+      try {
+        const result = await this.listAvailableServers();
+        res.json(JSON.parse(result.content[0].text));
+      } catch (error) {
+        res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+      }
+    });
+
+    // Get server info
+    app.get('/api/servers/:name', async (req, res) => {
+      try {
+        const result = await this.getServerInfo({ server: req.params.name });
+        res.json(JSON.parse(result.content[0].text));
+      } catch (error) {
+        res.status(400).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+      }
+    });
+
+    // Check requirements
+    app.get('/api/requirements', async (req, res) => {
+      try {
+        const result = await this.checkRequirements();
+        res.json(JSON.parse(result.content[0].text));
+      } catch (error) {
+        res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+      }
+    });
+
+    // Get setup instructions
+    app.get('/api/setup/:service', async (req, res) => {
+      try {
+        const result = await this.getSetupInstructions({ service: req.params.service });
+        res.json({ instructions: result.content[0].text });
+      } catch (error) {
+        res.status(400).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+      }
+    });
+
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🌐 HTTP API server running on http://0.0.0.0:${PORT}`);
+      console.log(`📊 Health check: http://0.0.0.0:${PORT}/`);
+      console.log(`🔗 API docs: http://0.0.0.0:${PORT}/api/servers`);
+    });
+  }
+
   async run() {
     // Check if we're in development mode (when run directly)
     if (process.argv.includes('--dev') || process.env.NODE_ENV === 'development') {
@@ -562,6 +643,10 @@ class MainMCPServer {
       console.log('  npm run puppeteer  # Puppeteer MCP server');
       
       console.log('\n💡 To connect an MCP client, run this server via stdio transport');
+      console.log('🌐 Starting HTTP API server for web access...\n');
+      
+      // Start HTTP server in dev mode
+      this.setupHttpServer();
       return;
     }
     
