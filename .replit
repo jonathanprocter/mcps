@@ -4,7 +4,7 @@ modules = ["nodejs-20"]
 channel = "stable-24_05"
 
 [workflows]
-runButton = "Run Development Server"
+runButton = "Main Hub"
 
 [[workflows.workflow]]
 name = "Main Hub"
