@@ -96,3 +96,7 @@ args = "npm run dev"
 
 [deployment]
 run = ["sh", "-c", "npm run build && npm start"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80

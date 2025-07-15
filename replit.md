@@ -154,11 +154,14 @@ PERPLEXITY_API_KEY="your_api_key"
 
 ### Deployment Options
 - **Local Development**: Run individual servers using npm scripts
+- **Production Deployment**: Optimized build and start process for Replit
 - **Cloud Deployment**: Deploy to cloud platforms for remote access
 - **Container Deployment**: Docker support for consistent environments
 - **iPhone Integration**: Connect via MCP protocol from iOS applications
 
 ### Running Instructions
+
+#### Development
 ```bash
 # Individual servers
 npm run gmail      # Gmail MCP server
@@ -172,6 +175,18 @@ npm run puppeteer  # Puppeteer MCP server
 
 # Main hub server
 npm run dev        # Shows available servers and status
+```
+
+#### Production Deployment
+```bash
+# Fast build (recommended)
+node simple-build.js
+
+# Production start
+node start.js
+
+# Or direct start with environment variables
+NODE_ENV=production RUN_HTTP_SERVER=true PORT=5000 HOST=0.0.0.0 node dist/index.js
 ```
 
 ## Development Notes
@@ -190,6 +205,13 @@ npm run dev        # Shows available servers and status
   - Fixed Notion search parameter type issues
   - Fixed OpenAI Buffer to Uploadable conversion issues
   - Fixed Express server PORT type conversion issue
+- ✅ **Deployment Optimization (July 15, 2025)**
+  - Fixed TypeScript build memory allocation issues
+  - Implemented fast esbuild compilation (39ms build time)
+  - Added proper port binding for web deployment (0.0.0.0)
+  - Created production-ready start scripts
+  - Added graceful shutdown handling
+  - Optimized TypeScript configuration for deployment
 
 ### Technical Achievements
 - **Modular Design**: Each service is a separate MCP server

@@ -606,10 +606,30 @@ class MainMCPServer {
     });
 
     const PORT = Number(process.env.PORT) || 5000;
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🌐 HTTP API server running on http://0.0.0.0:${PORT}`);
-      console.log(`📊 Health check: http://0.0.0.0:${PORT}/`);
-      console.log(`🔗 API docs: http://0.0.0.0:${PORT}/api/servers`);
+    const HOST = process.env.HOST || '0.0.0.0';
+    
+    const server = app.listen(PORT, HOST, () => {
+      console.log(`🌐 HTTP API server running on http://${HOST}:${PORT}`);
+      console.log(`📊 Health check: http://${HOST}:${PORT}/`);
+      console.log(`🔗 API docs: http://${HOST}:${PORT}/api/servers`);
+      console.log(`🚀 Server ready for deployment on port ${PORT}`);
+    });
+
+    // Handle graceful shutdown
+    process.on('SIGTERM', () => {
+      console.log('📴 Received SIGTERM, shutting down gracefully...');
+      server.close(() => {
+        console.log('🔴 Server closed');
+        process.exit(0);
+      });
+    });
+
+    process.on('SIGINT', () => {
+      console.log('📴 Received SIGINT, shutting down gracefully...');
+      server.close(() => {
+        console.log('🔴 Server closed');
+        process.exit(0);
+      });
     });
   }
 
@@ -650,7 +670,17 @@ class MainMCPServer {
       return;
     }
     
-    // Production mode - use stdio transport for MCP clients
+    // Production mode - check if we should run HTTP server for deployment
+    if (process.env.NODE_ENV === 'production' || process.env.RUN_HTTP_SERVER === 'true') {
+      console.log('🌐 iPhone MCP Server Hub - Production Mode (HTTP Server)');
+      console.log('🚀 Starting HTTP API server for web deployment...\n');
+      
+      // Start HTTP server in production mode
+      this.setupHttpServer();
+      return;
+    }
+    
+    // Default MCP stdio transport for MCP clients
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     console.error('Main MCP server hub running on stdio');
