@@ -40,3 +40,21 @@ args = "npm run build"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node dist/index.js --dev"
+
+[[workflows.workflow]]
+name = "Test Puppeteer"
+author = 37925715
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run puppeteer"
+
+[[workflows.workflow]]
+name = "Check Server Status"
+author = 37925715
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
