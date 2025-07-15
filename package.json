@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "ts-node --project tsconfig.node.json src/index.ts --dev",
+    "dev": "node --loader ts-node/esm --project tsconfig.node.json src/index.ts --dev",
     "gmail": "ts-node --project tsconfig.node.json src/servers/gmail.ts",
     "drive": "ts-node --project tsconfig.node.json src/servers/drive.ts",
     "calendar": "ts-node --project tsconfig.node.json src/servers/calendar.ts",
