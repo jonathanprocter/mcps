@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>MCP Tool Interface</title>
+  <style>
+    :root {
+      --primary-color: #007AFF;
+      --primary-dark: #0056CC;
+      --secondary-color: #5856D6;
+      --success-color: #34C759;
+      --error-color: #FF3B30;
+      --warning-color: #FF9500;
+      --background: #F2F2F7;
+      --surface: rgba(255, 255, 255, 0.8);
+      --surface-elevated: rgba(255, 255, 255, 0.95);
+      --text-primary: #000000;
+      --text-secondary: #6D6D80;
+      --text-tertiary: #8E8E93;
+      --border: rgba(60, 60, 67, 0.12);
+      --shadow: rgba(0, 0, 0, 0.1);
+      --border-radius: 12px;
+      --border-radius-large: 20px;
+      --spacing-xs: 8px;
+      --spacing-sm: 12px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #000000;
+        --surface: rgba(28, 28, 30, 0.8);
+        --surface-elevated: rgba(44, 44, 46, 0.95);
+        --text-primary: #FFFFFF;
+        --text-secondary: #AEAEB2;
+        --text-tertiary: #8E8E93;
+        --border: rgba(84, 84, 88, 0.4);
+        --shadow: rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--spacing-md);
+      gap: var(--spacing-lg);
+    }
+
+    .header {
+      text-align: center;
+      padding: var(--spacing-lg) 0;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: var(--spacing-xs);
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .server-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .server-card {
+      background: var(--surface-elevated);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: var(--border-radius-large);
+      padding: var(--spacing-lg);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .server-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px var(--shadow);
+    }
+
+    .server-card.selected {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+    }
+
+    .server-header {
+      display: flex;
+      justify-content: between;
+      align-items: center;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .server-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .server-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success-color);
+      margin-left: auto;
+    }
+
+    .server-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .server-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-xs);
+    }
+
+    .tool-tag {
+      background: var(--surface);
+      color: var(--text-secondary);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border: 1px solid var(--border);
+    }
+
+    .main-interface {
+      background: var(--surface-elevated);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: var(--border-radius-large);
+      overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .interface-header {
+      padding: var(--spacing-lg);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .interface-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .tool-selector {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .select-container {
+      flex: 1;
+    }
+
+    .select-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    select {
+      width: 100%;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 1px solid var(--border);
+      border-radius: var(--border-radius);
+      background: var(--surface);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+    }
+
+    .input-section {
+      padding: var(--spacing-lg);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .textarea-container {
+      position: relative;
+      flex: 1;
+      min-height: 200px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100%;
+      padding: var(--spacing-md);
+      border: 1px solid var(--border);
+      border-radius: var(--border-radius);
+      background: var(--surface);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 1rem;
+      line-height: 1.5;
+      resize: none;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+    }
+
+    .char-counter {
+      position: absolute;
+      bottom: var(--spacing-xs);
+      right: var(--spacing-sm);
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      background: var(--surface);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-md);
+    }
+
+    .btn {
+      flex: 1;
+      padding: var(--spacing-md) var(--spacing-lg);
+      border: none;
+      border-radius: var(--border-radius);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-xs);
+      outline: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--surface-elevated);
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .loading-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid transparent;
+      border-top: 2px solid currentColor;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .output-section {
+      background: var(--surface-elevated);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: var(--border-radius-large);
+      margin-top: var(--spacing-lg);
+      overflow: hidden;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .output-header {
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .output-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .copy-btn {
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--primary-color);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background: rgba(0, 122, 255, 0.1);
+    }
+
+    .output-content {
+      flex: 1;
+      padding: var(--spacing-lg);
+      overflow-y: auto;
+      background: var(--surface);
+    }
+
+    .output-text {
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text-primary);
+    }
+
+    .output-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-tertiary);
+      text-align: center;
+      gap: var(--spacing-sm);
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .status-success {
+      background: rgba(52, 199, 89, 0.1);
+      color: var(--success-color);
+    }
+
+    .status-error {
+      background: rgba(255, 59, 48, 0.1);
+      color: var(--error-color);
+    }
+
+    .status-loading {
+      background: rgba(0, 122, 255, 0.1);
+      color: var(--primary-color);
+    }
+
+    @media (max-width: 768px) {
+      .app-container {
+        padding: var(--spacing-sm);
+        gap: var(--spacing-md);
+      }
+
+      .server-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tool-selector {
+        flex-direction: column;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header class="header">
+      <h1>MCP Tool Interface</h1>
+      <p>Connect and interact with your Model Context Protocol tools</p>
+    </header>
+
+    <div class="server-grid" id="serverGrid">
+      <!-- Server cards will be populated here -->
+    </div>
+
+    <div class="main-interface">
+      <div class="interface-header">
+        <div class="interface-title">Tool Interface</div>
+        <div class="tool-selector">
+          <div class="select-container">
+            <label class="select-label" for="serverSelect">Server</label>
+            <select id="serverSelect">
+              <option value="">Select a server...</option>
+            </select>
+          </div>
+          <div class="select-container">
+            <label class="select-label" for="toolSelect">Tool</label>
+            <select id="toolSelect" disabled>
+              <option value="">Select a tool...</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-section">
+        <label class="input-label" for="messageInput">Message</label>
+        <div class="textarea-container">
+          <textarea 
+            id="messageInput" 
+            placeholder="Enter your prompt, command, or question here..."
+            maxlength="2000"
+          ></textarea>
+          <div class="char-counter" id="charCounter">0 / 2000</div>
+        </div>
+        
+        <div class="button-group">
+          <button class="btn btn-secondary" id="clearBtn">Clear</button>
+          <button class="btn btn-primary" id="submitBtn">
+            <span id="submitText">Send</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="output-section">
+      <div class="output-header">
+        <span class="output-title">Response</span>
+        <button class="copy-btn" id="copyBtn" style="display: none;">Copy</button>
+      </div>
+      <div class="output-content" id="outputContent">
+        <div class="output-placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+          <p>Your response will appear here</p>
+          <p style="font-size: 0.75rem; opacity: 0.7;">Start by selecting a server and tool above</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // MCP Server configurations
+    const servers = {
+      gmail: {
+        name: 'Gmail',
+        description: 'Complete Gmail integration for email management',
+        tools: ['search_emails', 'send_email', 'get_email', 'mark_as_read', 'mark_as_unread', 'delete_email', 'get_attachments'],
+        icon: '📧',
+        color: '#EA4335'
+      },
+      drive: {
+        name: 'Google Drive',
+        description: 'Google Drive file management and sharing',
+        tools: ['list_files', 'upload_file', 'download_file', 'share_file', 'move_file', 'copy_file', 'delete_file'],
+        icon: '📁',
+        color: '#4285F4'
+      },
+      calendar: {
+        name: 'Google Calendar',
+        description: 'Google Calendar event management',
+        tools: ['list_events', 'create_event', 'update_event', 'delete_event', 'search_events', 'get_busy_times'],
+        icon: '📅',
+        color: '#34A853'
+      },
+      dropbox: {
+        name: 'Dropbox',
+        description: 'Dropbox cloud storage integration',
+        tools: ['list_files', 'upload_file', 'download_file', 'share_file', 'move_file', 'get_space_usage'],
+        icon: '☁️',
+        color: '#0061FF'
+      },
+      notion: {
+        name: 'Notion',
+        description: 'Notion workspace and knowledge management',
+        tools: ['search_pages', 'create_page', 'update_page', 'query_database', 'create_database_entry', 'append_block_children'],
+        icon: '📝',
+        color: '#000000'
+      },
+      openai: {
+        name: 'OpenAI',
+        description: 'OpenAI AI capabilities and models',
+        tools: ['chat_completion', 'generate_image', 'analyze_image', 'transcribe_audio', 'text_to_speech', 'create_embedding'],
+        icon: '🤖',
+        color: '#10A37F'
+      },
+      perplexity: {
+        name: 'Perplexity',
+        description: 'Perplexity real-time web search and research',
+        tools: ['search_and_answer', 'fact_check', 'research_topic', 'compare_topics', 'latest_news', 'generate_summary'],
+        icon: '🔍',
+        color: '#20B2AA'
+      },
+      puppeteer: {
+        name: 'Puppeteer',
+        description: 'Web scraping and browser automation',
+        tools: ['scrape_page', 'take_screenshot', 'generate_pdf', 'fill_form', 'click_element', 'extract_links'],
+        icon: '🕷️',
+        color: '#40E0D0'
+      }
+    };
+
+    let selectedServer = '';
+    let selectedTool = '';
+    let isLoading = false;
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeServerGrid();
+      initializeEventListeners();
+      updateCharCounter();
+    });
+
+    function initializeServerGrid() {
+      const grid = document.getElementById('serverGrid');
+      const serverSelect = document.getElementById('serverSelect');
+      
+      Object.entries(servers).forEach(([key, server]) => {
+        // Create server card
+        const card = document.createElement('div');
+        card.className = 'server-card';
+        card.dataset.server = key;
+        
+        card.innerHTML = `
+          <div class="server-header">
+            <div class="server-name">${server.icon} ${server.name}</div>
+            <div class="server-status"></div>
+          </div>
+          <div class="server-description">${server.description}</div>
+          <div class="server-tools">
+            ${server.tools.slice(0, 4).map(tool => `<span class="tool-tag">${tool}</span>`).join('')}
+            ${server.tools.length > 4 ? `<span class="tool-tag">+${server.tools.length - 4} more</span>` : ''}
+          </div>
+        `;
+        
+        card.addEventListener('click', () => selectServer(key));
+        grid.appendChild(card);
+        
+        // Add to server select
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = server.name;
+        serverSelect.appendChild(option);
+      });
+    }
+
+    function selectServer(serverKey) {
+      selectedServer = serverKey;
+      selectedTool = '';
+      
+      // Update UI
+      document.querySelectorAll('.server-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      document.querySelector(`[data-server="${serverKey}"]`).classList.add('selected');
+      
+      // Update selects
+      document.getElementById('serverSelect').value = serverKey;
+      updateToolSelect();
+    }
+
+    function updateToolSelect() {
+      const toolSelect = document.getElementById('toolSelect');
+      toolSelect.innerHTML = '<option value="">Select a tool...</option>';
+      
+      if (selectedServer && servers[selectedServer]) {
+        toolSelect.disabled = false;
+        servers[selectedServer].tools.forEach(tool => {
+          const option = document.createElement('option');
+          option.value = tool;
+          option.textContent = tool.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+          toolSelect.appendChild(option);
+        });
+      } else {
+        toolSelect.disabled = true;
+      }
+    }
+
+    function initializeEventListeners() {
+      const messageInput = document.getElementById('messageInput');
+      const clearBtn = document.getElementById('clearBtn');
+      const submitBtn = document.getElementById('submitBtn');
+      const copyBtn = document.getElementById('copyBtn');
+      const serverSelect = document.getElementById('serverSelect');
+      const toolSelect = document.getElementById('toolSelect');
+      
+      messageInput.addEventListener('input', updateCharCounter);
+      clearBtn.addEventListener('click', clearInput);
+      submitBtn.addEventListener('click', submitMessage);
+      copyBtn.addEventListener('click', copyOutput);
+      
+      serverSelect.addEventListener('change', (e) => {
+        if (e.target.value) {
+          selectServer(e.target.value);
+        }
+      });
+      
+      toolSelect.addEventListener('change', (e) => {
+        selectedTool = e.target.value;
+      });
+      
+      messageInput.addEventListener('keydown', (e) => {
+        if (e.metaKey && e.key === 'Enter') {
+          e.preventDefault();
+          submitMessage();
+        }
+      });
+    }
+
+    function updateCharCounter() {
+      const input = document.getElementById('messageInput');
+      const counter = document.getElementById('charCounter');
+      const length = input.value.length;
+      counter.textContent = `${length} / 2000`;
+      
+      if (length > 1800) {
+        counter.style.color = 'var(--error-color)';
+      } else if (length > 1500) {
+        counter.style.color = 'var(--warning-color)';
+      } else {
+        counter.style.color = 'var(--text-tertiary)';
+      }
+    }
+
+    function clearInput() {
+      document.getElementById('messageInput').value = '';
+      updateCharCounter();
+      document.getElementById('messageInput').focus();
+    }
+
+    function copyOutput() {
+      const outputText = document.querySelector('.output-text')?.textContent;
+      if (outputText) {
+        navigator.clipboard.writeText(outputText).then(() => {
+          const copyBtn = document.getElementById('copyBtn');
+          const originalText = copyBtn.textContent;
+          copyBtn.textContent = 'Copied!';
+          copyBtn.style.color = 'var(--success-color)';
+          setTimeout(() => {
+            copyBtn.textContent = originalText;
+            copyBtn.style.color = 'var(--primary-color)';
+          }, 2000);
+        });
+      }
+    }
+
+    function setLoadingState(loading) {
+      isLoading = loading;
+      const submitBtn = document.getElementById('submitBtn');
+      const submitText = document.getElementById('submitText');
+      const clearBtn = document.getElementById('clearBtn');
+
+      if (loading) {
+        submitBtn.disabled = true;
+        clearBtn.disabled = true;
+        submitText.innerHTML = '<div class="loading-spinner"></div> Sending...';
+      } else {
+        submitBtn.disabled = false;
+        clearBtn.disabled = false;
+        submitText.textContent = 'Send';
+      }
+    }
+
+    function displayOutput(content, isError = false, isLoading = false) {
+      const outputContent = document.getElementById('outputContent');
+      const copyBtn = document.getElementById('copyBtn');
+      
+      outputContent.innerHTML = '';
+      
+      if (isLoading) {
+        const statusDiv = document.createElement('div');
+        statusDiv.className = 'status-indicator status-loading';
+        statusDiv.innerHTML = '<div class="loading-spinner"></div> Processing...';
+        outputContent.appendChild(statusDiv);
+        
+        const loadingText = document.createElement('div');
+        loadingText.className = 'output-text';
+        loadingText.textContent = 'Please wait while we process your request...';
+        outputContent.appendChild(loadingText);
+        
+        copyBtn.style.display = 'none';
+        return;
+      }
+      
+      const statusDiv = document.createElement('div');
+      statusDiv.className = `status-indicator ${isError ? 'status-error' : 'status-success'}`;
+      statusDiv.textContent = isError ? 'Error' : 'Success';
+      outputContent.appendChild(statusDiv);
+      
+      const outputDiv = document.createElement('div');
+      outputDiv.className = 'output-text fade-in';
+      outputDiv.textContent = content;
+      outputContent.appendChild(outputDiv);
+      
+      copyBtn.style.display = 'block';
+    }
+
+    async function submitMessage() {
+      if (isLoading) return;
+      
+      const input = document.getElementById('messageInput').value.trim();
+      
+      if (!input) {
+        displayOutput('Please enter a message before sending.', true);
+        return;
+      }
+      
+      if (!selectedServer || !selectedTool) {
+        displayOutput('Please select a server and tool before sending.', true);
+        return;
+      }
+      
+      setLoadingState(true);
+      displayOutput('', false, true);
+      
+      try {
+        // Since we're running as a standalone HTML file, we'll simulate the response
+        // In a real deployment, this would make an actual API call to your MCP servers
+        await simulateAPICall(selectedServer, selectedTool, input);
+        
+      } catch (error) {
+        displayOutput(`Error: ${error.message}`, true);
+      } finally {
+        setLoadingState(false);
+      }
+    }
+
+    async function simulateAPICall(server, tool, input) {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+      
+      // Mock responses for demonstration
+      const mockResponses = {
+        gmail: {
+          search_emails: `Found 5 emails matching your query: "${input}"\n\n📧 Email 1: "Meeting Tomorrow"\n   From: john@example.com\n   Date: ${new Date().toLocaleDateString()}\n   Preview: Let's discuss the project...\n\n📧 Email 2: "Project Update"\n   From: sarah@example.com\n   Date: ${new Date().toLocaleDateString()}\n   Preview: I've completed the tasks...\n\n📧 Email 3: "Weekly Report"\n   From: team@example.com\n   Date: ${new Date().toLocaleDateString()}\n   Preview: This week's progress summary...`,
+          send_email: `✅ Email sent successfully!\n\nTo: Generated recipient based on "${input}"\nSubject: Auto-generated from your message\nSent at: ${new Date().toLocaleString()}\n\nYour message has been delivered to the recipient's inbox.`,
+          get_email: `📧 Email Details:\n\nSubject: Re: ${input}\nFrom: contact@example.com\nTo: you@example.com\nDate: ${new Date().toLocaleDateString()}\n\nMessage:\nThank you for your inquiry about "${input}". We'll get back to you soon with detailed information.\n\nBest regards,\nThe Team`
+        },
+        drive: {
+          list_files: `📁 Google Drive Files:\n\n📁 Documents/\n   📄 Project_Plan.pdf (2.1 MB)\n   📄 Meeting_Notes.docx (456 KB)\n   📄 Budget_2025.xlsx (789 KB)\n\n📁 Photos/\n   🖼️ vacation_2024.jpg (3.2 MB)\n   🖼️ family_photo.png (1.8 MB)\n\n📁 Work/\n   📄 presentation.pptx (5.4 MB)\n   📄 report.pdf (1.2 MB)\n\nQuery: "${input}"\nTotal files: 156 | Used: 8.2 GB / 15 GB\nLast updated: ${new Date().toLocaleString()}`,
+          upload_file: `✅ File uploaded successfully!\n\nFile: "${input}"\nSize: 1.2 MB\nLocation: /Documents/\nShare link: https://drive.google.com/file/d/1BxYz3AbC4dEfGhIjKlMn\nUploaded: ${new Date().toLocaleString()}\n\nFile is now available in your Google Drive.`,
+          share_file: `✅ File shared successfully!\n\nFile: "${input}"\nShared with: team@example.com\nPermissions: View only\nShare link: https://drive.google.com/file/d/shared123\nExpires: Never\n\nRecipients will receive a notification email.`
+        },
+        calendar: {
+          list_events: `📅 Upcoming Events:\n\n📅 Team Meeting\n   Date: ${new Date().toLocaleDateString()}\n   Time: 10:00 AM - 11:00 AM\n   Location: Conference Room A\n   Attendees: 5 people\n\n📅 Project Review\n   Date: ${new Date(Date.now() + 86400000).toLocaleDateString()}\n   Time: 2:00 PM - 3:00 PM\n   Location: Zoom Meeting\n   Attendees: 8 people\n\n📅 Client Call\n   Date: ${new Date(Date.now() + 172800000).toLocaleDateString()}\n   Time: 9:30 AM - 10:30 AM\n   Location: Phone Call\n   Attendees: 3 people\n\nQuery: "${input}"\nTotal events this week: 12`,
+          create_event: `✅ Event created successfully!\n\nTitle: ${input}\nDate: ${new Date().toLocaleDateString()}\nTime: 2:00 PM - 3:00 PM\nLocation: To be determined\nCreated: ${new Date().toLocaleString()}\nEvent ID: cal_event_123456\n\nInvitations will be sent to attendees.`,
+          search_events: `🔍 Found 3 events matching "${input}":\n\n1. 📅 Weekly Standup\n   Today at 9:00 AM\n   Conference Room B\n\n2. 📅 Client Call\n   Tomorrow at 3:00 PM\n   Zoom Meeting\n\n3. 📅 Team Lunch\n   Friday at 12:00 PM\n   Restaurant Downtown\n\nAll events are confirmed and have reminders set.`
+        },
+        dropbox: {
+          list_files: `☁️ Dropbox Files:\n\n📁 Work/\n   📄 Resume.pdf (543 KB)\n   📄 Portfolio.pdf (2.1 MB)\n   📄 Contract.docx (89 KB)\n\n📁 Personal/\n   🖼️ Photo_2024.jpg (1.2 MB)\n   🎵 Music_Collection/ (145 files)\n   📄 Tax_Documents.pdf (678 KB)\n\n📁 Projects/\n   📄 App_Design.sketch (3.4 MB)\n   📄 Website_Mockup.fig (1.8 MB)\n\nQuery: "${input}"\nTotal files: 234 | Used: 2.1 GB / 5 GB\nLast sync: ${new Date().toLocaleString()}`,
+          upload_file: `✅ File uploaded to Dropbox!\n\nFile: "${input}"\nPath: /Work/\nSize: 890 KB\nUploaded: ${new Date().toLocaleString()}\nShare link: https://dropbox.com/s/abc123def456\n\nFile is now synced across all your devices.`,
+          share_file: `✅ File shared from Dropbox!\n\nFile: "${input}"\nShared link: https://dropbox.com/s/shared123456\nExpires: Never\nPassword protected: No\nDownload permissions: Yes\nCreated: ${new Date().toLocaleString()}\n\nAnyone with the link can view this file.`
+        },
+        notion: {
+          search_pages: `📝 Found 4 pages matching "${input}":\n\n📄 Project Documentation\n   Last edited: ${new Date().toLocaleDateString()}\n   Created by: You\n   URL: https://notion.so/project-docs\n\n📄 Meeting Notes - Q1 2025\n   Last edited: ${new Date().toLocaleDateString()}\n   Created by: Team Lead\n   URL: https://notion.so/meeting-notes\n\n📄 Ideas & Brainstorming\n   Last edited: ${new Date().toLocaleDateString()}\n   Created by: Design Team\n   URL: https://notion.so/ideas-brainstorm\n\n📄 Task Management\n   Last edited: ${new Date().toLocaleDateString()}\n   Created by: Project Manager\n   URL: https://notion.so/task-management`,
+          create_page: `✅ Page created in Notion!\n\nTitle: ${input}\nURL: https://notion.so/new-page-${Date.now()}\nCreated: ${new Date().toLocaleString()}\nTemplate: Blank page\nParent: Root workspace\n\nYou can now start adding content to your new page.`,
+          query_database: `🗃️ Database Query Results:\n\nQuery: "${input}"\nDatabase: Project Tasks\nFound 7 entries:\n\n✅ Task: Complete project proposal\n   Status: Done\n   Assignee: John Doe\n   Due: ${new Date().toLocaleDateString()}\n\n🔄 Task: Review code changes\n   Status: In Progress\n   Assignee: Jane Smith\n   Due: ${new Date(Date.now() + 86400000).toLocaleDateString()}\n\n📋 Task: Design mockups\n   Status: To Do\n   Assignee: Design Team\n   Due: ${new Date(Date.now() + 172800000).toLocaleDateString()}\n\nTotal tasks: 7 | Completed: 2 | In Progress: 3 | To Do: 2`
+        },
+        openai: {
+          chat_completion: `🤖 OpenAI GPT-4 Response:\n\nQuery: "${input}"\n\nBased on your request, I've analyzed the information and generated a comprehensive response. Here are the key insights:\n\n• Your query demonstrates a clear understanding of the topic\n• The approach you're considering has several advantages\n• There are a few considerations to keep in mind\n• I recommend exploring alternative solutions as well\n\nThe analysis suggests that proceeding with your current plan would be beneficial, with some minor adjustments to optimize the outcome.\n\nGenerated: ${new Date().toLocaleString()}\nModel: GPT-4\nTokens used: 150/4000\nResponse time: 2.3 seconds`,
+          generate_image: `🎨 Image generated successfully!\n\nPrompt: "${input}"\nModel: DALL-E 3\nSize: 1024x1024\nStyle: Vivid\nQuality: HD\nGenerated: ${new Date().toLocaleString()}\n\nImage URL: https://example.com/generated-image-${Date.now()}.jpg\nRevision ID: img_abc123def456\n\nThe image has been created based on your prompt and is ready for download.`,
+          analyze_image: `👁️ Image Analysis Results:\n\nQuery: "${input}"\n\nImage Analysis:\n• Scene: Urban landscape with modern architecture\n• Objects detected: Buildings (95%), Cars (89%), People (76%)\n• Colors: Predominantly blue and gray tones\n• Lighting: Natural daylight, afternoon setting\n• Composition: Balanced, following rule of thirds\n\nText detected: "City Center", "Main Street"\nFaces detected: 3 people\nSentiment: Positive, vibrant city life\n\nAnalyzed: ${new Date().toLocaleString()}\nModel: GPT-4 Vision\nConfidence: 92%`
+        },
+        perplexity: {
+          search_and_answer: `🔍 Perplexity Search Results:\n\nQuery: "${input}"\n\nBased on the latest web search, here are the key findings:\n\n📊 Current Trends:\n• Recent developments show significant progress in this area\n• Market analysis indicates positive growth trajectory\n• Expert opinions suggest continued innovation\n• Industry reports confirm strong adoption rates\n\n📈 Key Statistics:\n• 67% increase in related searches this month\n• 45% of professionals report positive experiences\n• 23% growth in market size year-over-year\n\n🔗 Sources:\n• TechCrunch (${new Date().toLocaleDateString()})\n• Reuters Business (${new Date().toLocaleDateString()})\n• Industry Weekly (${new Date().toLocaleDateString()})\n• Research Institute Report (${new Date().toLocaleDateString()})\n\nSearched: ${new Date().toLocaleString()}\nSearch time: 3.2 seconds`,
+          fact_check: `✅ Fact Check Results:\n\nStatement: "${input}"\n\nVerification Status: VERIFIED ✅\n\nFindings:\n• Claim is supported by multiple reliable sources\n• Data cross-referenced with official records\n• No contradictory evidence found in recent publications\n• Consensus among expert opinions\n\nSupporting Evidence:\n• Official government documentation\n• Peer-reviewed academic research\n• Industry standard references\n• Historical data validation\n\nLast verified: ${new Date().toLocaleString()}\nReliability score: 94%\nSources checked: 12`,
+          research_topic: `📚 Research Report: "${input}"\n\nExecutive Summary:\nComprehensive analysis reveals multiple perspectives on this topic with emerging trends and significant implications for the industry.\n\n🔍 Key Findings:\n• Historical context shows steady evolution over the past decade\n• Current state indicates active development and innovation\n• Future projections suggest continued relevance and growth\n• Expert consensus supports main conclusions\n\n📊 Market Analysis:\n• Growth rate: 15% annually\n• Market size: $2.3B globally\n• Key players: 5 major companies\n• Emerging trends: AI integration, sustainability focus\n\n🎯 Recommendations:\n• Monitor developments closely\n• Consider strategic partnerships\n• Invest in research and development\n• Stay ahead of regulatory changes\n\nResearched: ${new Date().toLocaleString()}\nReport length: 2,847 words\nSources: 23 references`
+        },
+        puppeteer: {
+          scrape_page: `🕷️ Web Scraping Results:\n\nURL: Based on "${input}"\nPage Title: Sample Website - Welcome\nStatus: Successfully scraped\n\nExtracted Content:\n📄 Main content: Welcome to our website. We provide excellent services...\n🔗 Links found: 15 internal, 8 external\n🖼️ Images found: 12 (average size: 245 KB)\n📝 Forms found: 2 (contact form, newsletter signup)\n\nMetadata:\n• Page load time: 2.3 seconds\n• Total size: 1.2 MB\n• Last modified: ${new Date().toLocaleDateString()}\n• Language: English\n• Mobile-friendly: Yes\n\nScraping completed: ${new Date().toLocaleString()}\nData extracted: 847 elements\nStatus: Success`,
+          take_screenshot: `📸 Screenshot captured!\n\nTarget: Based on "${input}"\nDimensions: 1920x1080 (Desktop)\nFormat: PNG\nFile size: 234 KB\nViewport: Full page\n\nScreenshot details:\n• Captured: ${new Date().toLocaleString()}\n• Quality: High (300 DPI)\n• Color depth: 24-bit\n• Compression: Lossless\n\nSaved to: /screenshots/capture_${Date.now()}.png\nPreview available: Yes\nStatus: Success`,
+          generate_pdf: `📄 PDF generated successfully!\n\nContent source: "${input}"\nPages: 3\nFile size: 127 KB\nFormat: A4 Portrait\nResolution: 300 DPI\n\nPDF Details:\n• Generated: ${new Date().toLocaleString()}\n• Margins: 1 inch all sides\n• Font: Arial, 12pt\n• Images: 2 embedded\n• Links: 5 clickable\n\nSaved to: /pdfs/document_${Date.now()}.pdf\nPassword protected: No\nPrint-ready: Yes\nStatus: Success`
+        }
+      };
+      
+      const serverResponses = mockResponses[server];
+      if (serverResponses && serverResponses[tool]) {
+        displayOutput(serverResponses[tool]);
+      } else {
+        displayOutput(`Tool "${tool}" executed successfully on ${server} server with input: "${input}"\n\nResponse: This is a simulated response. In a real deployment, this would connect to your actual MCP server and execute the tool with the provided parameters.\n\nTimestamp: ${new Date().toLocaleString()}\nExecution time: ${(Math.random() * 3 + 0.5).toFixed(2)} seconds`);
+      }
+    }
+
+    // Add haptic feedback for iOS devices
+    function addHapticFeedback() {
+      if (navigator.vibrate && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
+        navigator.vibrate(50);
+      }
+    }
+
+    // Add haptic feedback to buttons
+    document.addEventListener('click', function(e) {
+      if (e.target.matches('button') || e.target.closest('button')) {
+        addHapticFeedback();
+      }
+    });
+  </script>
+</body>
+</html>
